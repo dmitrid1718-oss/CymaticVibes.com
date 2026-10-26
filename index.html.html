@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CymaticVibes - Sound Frequencies & Visual Mood Explorer</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            spaceDark: '#080a18',
+            spaceNavy: '#0f132e',
+            glassDark: 'rgba(15, 19, 42, 0.65)',
+            glassCard: 'rgba(23, 28, 62, 0.45)',
+            glassBorder: 'rgba(255, 255, 255, 0.08)',
+            neonRose: '#ff4b72',
+            neonCyan: '#00f0ff',
+            neonGold: '#ffb703',
+            neonViolet: '#a855f7',
+            neonEmerald: '#10b981'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(8, 10, 24, 0.9);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 240, 255, 0.4);
+    }
+
+    /* Glassmorphism Classes */
+    .glass-panel {
+      background: rgba(13, 17, 38, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .glass-card {
+      background: rgba(22, 28, 60, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      background: rgba(28, 36, 78, 0.65);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+
+    /* Custom Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Ambient Glow Pulse */
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.45; transform: scale(1); }
+      50% { opacity: 0.75; transform: scale(1.05); }
+    }
+    .bg-ambient-glow {
+      animation: ambientPulse 10s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-spaceDark text-slate-100 font-sans min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+  <!-- Ambient Violet / Indigo Radial Background Glows -->
+  <div id="bgGlowPrimary" class="fixed inset-0 pointer-events-none z-0 bg-ambient-glow transition-all duration-1000 opacity-60"
+       style="background: radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.22), transparent 50%), radial-gradient(circle at 70% 80%, rgba(255, 75, 114, 0.18), transparent 50%);"></div>
+
+  <!-- Header Navigation -->
+  <header class="relative z-20 w-full px-6 py-4 flex items-center justify-between border-b border-white/10 glass-panel">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
+        <i class="ph ph-waves text-2xl text-white"></i>
+      </div>
+      <div>
+        <h1 class="font-display font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-purple-300">
+          CYMATIC<span class="text-cyan-400">VIBES</span>
+        </h1>
+        <p class="text-xs text-slate-400 tracking-wide">Sound Frequency & Mood Resonance</p>
+      </div>
+    </div>
+
+    <!-- Right Header Actions -->
+    <div class="flex items-center gap-3">
+      <button id="btnGuidedReset" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 hover:from-emerald-500/30 hover:to-cyan-500/30 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold transition shadow-lg shadow-emerald-950/40">
+        <i class="ph ph-timer text-lg"></i>
+        <span>1-Min Reset</span>
+      </button>
+
+      <button id="btnToggleScience" class="flex items-center gap-2 px-4 py-2 rounded-xl glass-card text-slate-300 hover:text-white text-xs sm:text-sm font-medium transition">
+        <i class="ph ph-brain text-lg text-cyan-400"></i>
+        <span class="hidden sm:inline">Science & Mood Guide</span>
+      </button>
+
+      <button id="btnFullscreen" class="p-2.5 rounded-xl glass-card text-slate-300 hover:text-white transition" title="Fullscreen Visualizer">
+        <i class="ph ph-arrows-out text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 max-w-[1750px] w-full mx-auto">
+    
+    <!-- Left Column: Visualizer Canvas Stage -->
+    <section id="canvasContainer" class="lg:col-span-8 flex flex-col justify-between rounded-3xl glass-panel p-4 sm:p-6 relative overflow-hidden min-h-[500px] lg:min-h-[660px]">
+      
+      <!-- Canvas Header Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-4 z-10">
+        
+        <!-- Active Frequency Indicator Badge -->
+        <div class="flex items-center gap-3 bg-spaceNavy/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
+          <div id="freqIndicatorDot" class="w-3.5 h-3.5 rounded-full bg-neonRose animate-pulse shadow-md shadow-rose-500"></div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="currentFreqDisplay" class="font-display font-bold text-xl text-white font-mono">396 Hz</span>
+              <span id="currentSolfeggioTag" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold uppercase">UT • Root</span>
+            </div>
+            <p id="currentMoodDisplay" class="text-xs text-slate-400">Grounding, Releasing Guilt & Fear</p>
+          </div>
+        </div>
+
+        <!-- Mode Toggle Switcher -->
+        <div class="flex items-center bg-spaceNavy/80 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 text-xs">
+          <button id="modeChladni" class="px-4 py-2 rounded-xl font-semibold transition bg-indigo-500/30 text-cyan-300 border border-cyan-400/30 shadow-md">
+            <i class="ph ph-dots-nine mr-1.5"></i> Chladni Sand
+          </button>
+          <button id="modeFluid" class="px-4 py-2 rounded-xl font-medium text-slate-400 hover:text-white transition">
+            <i class="ph ph-waves mr-1.5"></i> Liquid Ripples
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Visualizer Canvas -->
+      <canvas id="cymaticCanvas" class="absolute inset-0 w-full h-full cursor-crosshair object-cover z-0"></canvas>
+
+      <!-- Bottom Audio Control Toolbar -->
+      <div class="z-10 mt-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-spaceNavy/85 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+        
+        <!-- Audio Synth Master Play Button -->
+        <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+          <button id="btnAudioToggle" class="w-13 h-13 px-4 py-3 rounded-2xl bg-gradient-to-tr from-rose-500 via-indigo-600 to-cyan-400 hover:opacity-90 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 transition transform active:scale-95">
+            <i class="ph ph-play text-2xl" id="audioIcon"></i>
+          </button>
+          <div>
+            <div class="text-sm font-bold text-white flex items-center gap-2">
+              <span>Pure Resonance Generator</span>
+              <span id="audioStateTag" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10">Stopped</span>
+            </div>
+            <p class="text-xs text-slate-400">Harmonic Sine Wave • Zero Distortion Synth</p>
+          </div>
+        </div>
+
+        <!-- Layer Toggles: Binaural Beats & Sub-Harmonics -->
+        <div class="flex items-center gap-3">
+          <button id="toggleSubHarmonics" class="px-3 py-1.5 rounded-xl glass-card text-xs text-slate-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition">
+            <i class="ph ph-speaker-low text-cyan-400"></i>
+            <span>Sub-Octave</span>
+          </button>
+          <button id="toggleBinaural" class="px-3 py-1.5 rounded-xl glass-card text-xs text-slate-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition">
+            <i class="ph ph-headphones text-violet-400"></i>
+            <span>5Hz Theta Beat</span>
+          </button>
+        </div>
+
+        <!-- Master Volume Control -->
+        <div class="flex items-center gap-3 w-full sm:w-44">
+          <i class="ph ph-speaker-simple-high text-slate-400 text-lg"></i>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.45" class="w-full" title="Master Volume">
+          <span id="volumeVal" class="text-xs font-mono text-slate-400 w-8">45%</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right Sidebar: Frequency Cards & Acoustic Parameters -->
+    <aside class="lg:col-span-4 flex flex-col gap-6">
+      
+      <!-- Solfeggio Presets Matrix -->
+      <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h2 class="font-display font-bold text-base text-white flex items-center gap-2">
+            <i class="ph ph-sparkle text-cyan-400"></i> Solfeggio Mood Matrix
+          </h2>
+          <span class="text-xs text-slate-400">6 Pure Tones</span>
+        </div>
+
+        <div id="presetGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+          <!-- Preset buttons rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Tuning Controls Panel -->
+      <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+        <h2 class="font-display font-bold text-base text-white border-b border-white/10 pb-3 flex items-center gap-2">
+          <i class="ph ph-sliders text-cyan-400"></i> Acoustic & Physics Fine Tuning
+        </h2>
+
+        <!-- Frequency Manual Slider -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between text-xs">
+            <label class="text-slate-300 font-medium">Fine Frequency Pitch</label>
+            <span id="sliderFreqVal" class="font-mono text-cyan-400 font-bold">396 Hz</span>
+          </div>
+          <input type="range" id="frequencySlider" min="100" max="1000" step="1" value="396">
+        </div>
+
+        <!-- Particle Density / Resolution Slider -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between text-xs">
+            <label class="text-slate-300 font-medium">Sand Particle Density</label>
+            <span id="sliderDensityVal" class="font-mono text-cyan-400 font-bold">5000</span>
+          </div>
+          <input type="range" id="densitySlider" min="1000" max="10000" step="500" value="5000">
+        </div>
+
+        <!-- Vibration Energy & Speed Slider -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between text-xs">
+            <label class="text-slate-300 font-medium">Vibration Speed & Acoustic Energy</label>
+            <span id="sliderSpeedVal" class="font-mono text-cyan-400 font-bold">1.4</span>
+          </div>
+          <input type="range" id="speedSlider" min="0.2" max="3.0" step="0.1" value="1.4">
+        </div>
+
+        <!-- Color Themes Selector -->
+        <div class="flex flex-col gap-2 pt-2 border-t border-white/10">
+          <label class="text-xs text-slate-300 font-medium">Visual Glow Palette</label>
+          <div class="grid grid-cols-5 gap-2" id="colorPaletteContainer">
+            <!-- Dynamic Palette Buttons -->
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Science & Mood Guide Modal -->
+  <div id="scienceModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spaceDark/80 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300">
+    <div class="glass-panel max-w-3xl w-full max-h-[85vh] rounded-3xl p-6 sm:p-8 overflow-y-auto relative border border-white/15 shadow-2xl">
+      <button id="btnCloseScience" class="absolute top-6 right-6 p-2 rounded-xl glass-card hover:bg-white/20 text-slate-300 hover:text-white transition">
+        <i class="ph ph-x text-xl"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-3.5 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+          <i class="ph ph-brain text-3xl"></i>
+        </div>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-white">The Science of Cymatics & Mood</h2>
+          <p class="text-sm text-slate-400">Resonance, Standing Waves & Human Biological Entrainment</p>
+        </div>
+      </div>
+
+      <div class="space-y-5 text-sm text-slate-300 leading-relaxed">
+        <section class="glass-card p-5 rounded-2xl">
+          <h3 class="font-bold text-base text-rose-400 mb-2 flex items-center gap-2">
+            <i class="ph ph-shield-check"></i> 396 Hz - Root Resonance & Fear Release
+          </h3>
+          <p>
+            The <strong>396 Hz Solfeggio tone</strong> sits as an acoustic root frequency. In cymatic wave mechanics, 396 Hz generates broad, foundational geometric grid lines. On a neuro-biological level, low resonant sound frequencies help slow heart rate variability (HRV) and shift the autonomic nervous system out of sympathetic "fight-or-flight" into calm parasympathetic balance.
+          </p>
+        </section>
+
+        <section class="glass-card p-5 rounded-2xl">
+          <h3 class="font-bold text-base text-cyan-300 mb-2 flex items-center gap-2">
+            <i class="ph ph-atom"></i> Chladni Sand Wave Dynamics
+          </h3>
+          <p>
+            When a surface vibrates at a specific frequency, sound waves bounce back and forth to create <strong>standing wave patterns</strong>. Areas of maximum vibration (antinodes) bounce particles away, forcing sand to settle into peaceful, motionless regions called <strong>nodal lines</strong> ($A(x,y) \approx 0$).
+          </p>
+        </section>
+
+        <section class="glass-card p-5 rounded-2xl">
+          <h3 class="font-bold text-base text-violet-300 mb-2 flex items-center gap-2">
+            <i class="ph ph-headphones"></i> Brainwave Synchronization & Theta Beats
+          </h3>
+          <p>
+            When listened to with headphones, introducing a subtle 5 Hz offset between ears (Binaural Beat) promotes <strong>Theta brainwave activity (4 - 8 Hz)</strong>—the state associated with deep meditation, intuitive insights, and stress reduction.
+          </p>
+        </section>
+      </div>
+
+      <div class="mt-8 pt-4 border-t border-white/10 flex justify-end">
+        <button id="btnCloseScience2" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-bold transition shadow-lg">
+          Explore Visualizer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1-Minute Guided Reset & Mood Tracker Modal -->
+  <div id="guidedModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-spaceDark/85 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300">
+    <div class="glass-panel max-w-lg w-full rounded-3xl p-6 sm:p-8 relative border border-white/20 shadow-2xl flex flex-col items-center text-center">
+      
+      <button id="btnCloseGuided" class="absolute top-6 right-6 p-2 rounded-xl glass-card hover:bg-white/20 text-slate-300 hover:text-white transition">
+        <i class="ph ph-x text-xl"></i>
+      </button>
+
+      <!-- Step 1: Pre-Assessment -->
+      <div id="guidedStep1" class="w-full flex flex-col items-center">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center mb-4">
+          <i class="ph ph-smiley-nervous text-3xl"></i>
+        </div>
+        <h2 class="font-display text-2xl font-bold text-white mb-2">1-Minute Resonance Reset</h2>
+        <p class="text-sm text-slate-400 mb-6">Select your current emotional state before beginning:</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-6">
+          <button class="mood-pre-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-emerald-400 transition" data-mood="Anxious">
+            <span class="text-2xl">😰</span> Anxious
+          </button>
+          <button class="mood-pre-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-emerald-400 transition" data-mood="Stressed">
+            <span class="text-2xl">🤯</span> Overwhelmed
+          </button>
+          <button class="mood-pre-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-emerald-400 transition" data-mood="Fatigued">
+            <span class="text-2xl">🥱</span> Fatigue
+          </button>
+          <button class="mood-pre-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-emerald-400 transition" data-mood="Neutral">
+            <span class="text-2xl">😐</span> Restless
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Live Timer -->
+      <div id="guidedStep2" class="w-full flex-col items-center hidden">
+        <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-2">Focus on the Visual Symmetry</span>
+        <div class="relative w-36 h-36 flex items-center justify-center my-4">
+          <svg class="w-full h-full transform -rotate-90">
+            <circle cx="72" cy="72" r="64" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none" />
+            <circle id="timerProgressCircle" cx="72" cy="72" r="64" stroke="#10b981" stroke-width="8" fill="none" 
+                    stroke-dasharray="402" stroke-dashoffset="0" class="transition-all duration-1000 ease-linear"/>
+          </svg>
+          <span id="resetTimerNum" class="absolute font-mono text-3xl font-bold text-white">60</span>
+        </div>
+        <p id="guidedBreathText" class="text-sm text-slate-300 font-medium h-6">Breathe in slowly...</p>
+      </div>
+
+      <!-- Step 3: Post-Assessment -->
+      <div id="guidedStep3" class="w-full flex-col items-center hidden">
+        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center mb-4">
+          <i class="ph ph-sparkle text-3xl"></i>
+        </div>
+        <h2 class="font-display text-2xl font-bold text-white mb-2">Session Complete</h2>
+        <p class="text-sm text-slate-400 mb-6">How do you feel after this brief sound immersion?</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mb-6">
+          <button class="mood-post-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-cyan-400 transition" data-mood="Grounded">
+            <span class="text-2xl">🌿</span> Grounded
+          </button>
+          <button class="mood-post-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-cyan-400 transition" data-mood="Calm">
+            <span class="text-2xl">😌</span> Deep Calm
+          </button>
+          <button class="mood-post-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-cyan-400 transition" data-mood="Refreshed">
+            <span class="text-2xl">✨</span> Refreshed
+          </button>
+          <button class="mood-post-btn p-3 rounded-2xl glass-card text-xs flex flex-col items-center gap-2 hover:border-cyan-400 transition" data-mood="Focused">
+            <span class="text-2xl">🧠</span> Clear Mind
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Summary Results -->
+      <div id="guidedStep4" class="w-full flex-col items-center hidden">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-400 to-cyan-400 flex items-center justify-center text-slate-950 font-bold text-2xl mb-4 shadow-lg shadow-emerald-500/30">
+          ✓
+        </div>
+        <h2 class="font-display text-2xl font-bold text-white mb-1">State Transition Logged</h2>
+        <p class="text-sm text-slate-400 mb-5">Shifted from <span id="summaryPre" class="text-amber-400 font-semibold">--</span> to <span id="summaryPost" class="text-emerald-400 font-semibold">--</span>.</p>
+
+        <div class="glass-card p-4 rounded-2xl w-full text-left text-xs text-slate-300 space-y-2.5 mb-6 border border-white/10">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Resonance Frequency:</span>
+            <span id="summaryFreq" class="font-mono text-rose-400 font-semibold">396 Hz (UT)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Nervous Response:</span>
+            <span class="text-emerald-300">Vagal Nerve Stimulation</span>
+          </div>
+        </div>
+
+        <button id="btnFinishReset" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 hover:opacity-90 text-slate-950 font-bold transition shadow-lg">
+          Return to CymaticVibes Stage
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 py-3 px-6 text-center text-xs text-slate-500 border-t border-white/5 bg-spaceDark/90">
+    <p>CymaticVibes.com • Interactive Acoustic Frequency & Visual Resonance Platform</p>
+  </footer>
+
+  <!-- App Application Code -->
+  <script>
+    // --- Solfeggio Presets Matrix ---
+    const SOLFEGGIO_PRESETS = [
+      { 
+        freq: 396, 
+        tag: 'UT • Root', 
+        name: '396 Hz', 
+        mood: 'Grounding, Releasing Guilt & Fear', 
+        palette: 'rose', 
+        desc: 'Root tone. Transmutes subconscious fear & anxiety into grounded security.' 
+      },
+      { 
+        freq: 432, 
+        tag: 'A = 432Hz', 
+        name: '432 Hz', 
+        mood: 'Deep Calm & Natural Harmony', 
+        palette: 'cyan', 
+        desc: 'Verdant natural tuning. Lowers heart rate and stills hyperactive thoughts.' 
+      },
+      { 
+        freq: 528, 
+        tag: 'MI • Solar', 
+        name: '528 Hz', 
+        mood: 'Transformation & DNA Repair', 
+        palette: 'gold', 
+        desc: 'The "Miracle Frequency". Inspires joy, mental clarity, and renewal.' 
+      },
+      { 
+        freq: 639, 
+        tag: 'FA • Heart', 
+        name: '639 Hz', 
+        mood: 'Interpersonal Harmony & Connection', 
+        palette: 'emerald', 
+        desc: 'Fosters empathy, emotional balance, and warm human relationships.' 
+      },
+      { 
+        freq: 741, 
+        tag: 'SOL • Expression', 
+        name: '741 Hz', 
+        mood: 'Intuition, Problem Solving & Focus', 
+        palette: 'violet', 
+        desc: 'Cleanses cell toxins and stimulates intuitive mental focus.' 
+      },
+      { 
+        freq: 852, 
+        tag: 'LA • Crown', 
+        name: '852 Hz', 
+        mood: 'Spiritual Awareness & High Intuition', 
+        palette: 'indigo', 
+        desc: 'Awakens inner strength, mindfulness, and higher consciousness.' 
+      }
+    ];
+
+    // --- Color Theme Palettes ---
+    const COLOR_PALETTES = {
+      rose: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(255, 75, 114, 0.28), transparent 55%), radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.18), transparent 50%)',
+        primary: '#ff4b72',
+        secondary: '#f43f5e',
+        particles: ['#ff4b72', '#ff7597', '#fda4af', '#ffffff', '#e11d48']
+      },
+      cyan: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(0, 240, 255, 0.25), transparent 55%), radial-gradient(circle at 70% 80%, rgba(99, 102, 241, 0.2), transparent 50%)',
+        primary: '#00f0ff',
+        secondary: '#38bdf8',
+        particles: ['#00f0ff', '#38bdf8', '#7dd3fc', '#ffffff', '#818cf8']
+      },
+      gold: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(255, 183, 3, 0.25), transparent 55%), radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.18), transparent 50%)',
+        primary: '#ffb703',
+        secondary: '#f59e0b',
+        particles: ['#ffb703', '#fbbf24', '#fef08a', '#ffffff', '#d97706']
+      },
+      emerald: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.25), transparent 55%), radial-gradient(circle at 70% 80%, rgba(6, 182, 212, 0.18), transparent 50%)',
+        primary: '#10b981',
+        secondary: '#34d399',
+        particles: ['#10b981', '#34d399', '#a7f3d0', '#ffffff', '#059669']
+      },
+      violet: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.28), transparent 55%), radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.2), transparent 50%)',
+        primary: '#a855f7',
+        secondary: '#c084fc',
+        particles: ['#a855f7', '#c084fc', '#e879f9', '#ffffff', '#7e22ce']
+      },
+      indigo: {
+        glowPrimary: 'radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.28), transparent 55%), radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.2), transparent 50%)',
+        primary: '#6366f1',
+        secondary: '#818cf8',
+        particles: ['#6366f1', '#818cf8', '#c7d2fe', '#ffffff', '#4338ca']
+      }
+    };
+
+    // --- State Object ---
+    const state = {
+      frequency: 396,
+      density: 5000,
+      speed: 1.4,
+      paletteKey: 'rose',
+      mode: 'chladni', // 'chladni' or 'fluid'
+      isPlayingAudio: false,
+      volume: 0.45,
+      subHarmonics: true,
+      binaural: false,
+      currentMood: 'Grounding, Releasing Guilt & Fear',
+      currentTag: 'UT • Root',
+      particles: [],
+      time: 0,
+      preMood: '',
+      postMood: ''
+    };
+
+    // --- Canvas & DOM References ---
+    const canvas = document.getElementById('cymaticCanvas');
+    const ctx = canvas.getContext('2d');
+    const bgGlowPrimary = document.getElementById('bgGlowPrimary');
+    
+    const currentFreqDisplay = document.getElementById('currentFreqDisplay');
+    const currentMoodDisplay = document.getElementById('currentMoodDisplay');
+    const currentSolfeggioTag = document.getElementById('currentSolfeggioTag');
+    const freqIndicatorDot = document.getElementById('freqIndicatorDot');
+
+    const frequencySlider = document.getElementById('frequencySlider');
+    const densitySlider = document.getElementById('densitySlider');
+    const speedSlider = document.getElementById('speedSlider');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    const sliderFreqVal = document.getElementById('sliderFreqVal');
+    const sliderDensityVal = document.getElementById('sliderDensityVal');
+    const sliderSpeedVal = document.getElementById('sliderSpeedVal');
+    const volumeVal = document.getElementById('volumeVal');
+
+    const btnAudioToggle = document.getElementById('btnAudioToggle');
+    const audioIcon = document.getElementById('audioIcon');
+    const audioStateTag = document.getElementById('audioStateTag');
+
+    const modeChladniBtn = document.getElementById('modeChladni');
+    const modeFluidBtn = document.getElementById('modeFluid');
+
+    const toggleSubHarmonicsBtn = document.getElementById('toggleSubHarmonics');
+    const toggleBinauralBtn = document.getElementById('toggleBinaural');
+
+    // --- Synthesizer Engine (Web Audio API) ---
+    let audioCtx = null;
+    let mainOsc = null;
+    let subOsc = null;
+    let binauralOsc = null;
+    let masterGainNode = null;
+
+    function initAudioEngine() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      masterGainNode = audioCtx.createGain();
+      masterGainNode.gain.setValueAtTime(state.volume, audioCtx.currentTime);
+
+      // Dynamics limiter for pristine audio
+      const compressor = audioCtx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-2, audioCtx.currentTime);
+      compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+
+      masterGainNode.connect(compressor);
+      compressor.connect(audioCtx.destination);
+    }
+
+    function startAudioSynth() {
+      initAudioEngine();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if (mainOsc) stopAudioSynth();
+
+      const now = audioCtx.currentTime;
+
+      // Soft Gain Ramp Envelope to eliminate clicks
+      masterGainNode.gain.setValueAtTime(0, now);
+      masterGainNode.gain.linearRampToValueAtTime(state.volume, now + 0.12);
+
+      // 1. Primary Solfeggio Sine
+      mainOsc = audioCtx.createOscillator();
+      mainOsc.type = 'sine';
+      mainOsc.frequency.setValueAtTime(state.frequency, now);
+
+      const mainGain = audioCtx.createGain();
+      mainGain.gain.setValueAtTime(0.4, now);
+      mainOsc.connect(mainGain);
+      mainGain.connect(masterGainNode);
+
+      // 2. Sub-Harmonic Octave Bass Tone
+      if (state.subHarmonics) {
+        subOsc = audioCtx.createOscillator();
+        subOsc.type = 'sine';
+        const subFreq = state.frequency <= 400 ? state.frequency / 2 : state.frequency / 4;
+        subOsc.frequency.setValueAtTime(subFreq, now);
+
+        const subGain = audioCtx.createGain();
+        subGain.gain.setValueAtTime(0.22, now);
+        subOsc.connect(subGain);
+        subGain.connect(masterGainNode);
+        subOsc.start(now);
+      }
+
+      // 3. Binaural Beat (+5Hz Theta Entrainment Offset)
+      if (state.binaural) {
+        binauralOsc = audioCtx.createOscillator();
+        binauralOsc.type = 'sine';
+        binauralOscillatorFreq = state.frequency + 5;
+        binauralOsc.frequency.setValueAtTime(binauralOscillatorFreq, now);
+
+        const binGain = audioCtx.createGain();
+        binGain.gain.setValueAtTime(0.18, now);
+        binauralOsc.connect(binGain);
+        binGain.connect(masterGainNode);
+        binauralOsc.start(now);
+      }
+
+      mainOsc.start(now);
+
+      state.isPlayingAudio = true;
+      updateAudioUI();
+    }
+
+    function stopAudioSynth() {
+      if (!state.isPlayingAudio || !audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      masterGainNode.gain.linearRampToValueAtTime(0, now + 0.08);
+
+      setTimeout(() => {
+        try {
+          if (mainOsc) { mainOsc.stop(); mainOsc.disconnect(); mainOsc = null; }
+          if (subOsc) { subOsc.stop(); subOsc.disconnect(); subOsc = null; }
+          if (binauralOsc) { binauralOsc.stop(); binauralOsc.disconnect(); binauralOsc = null; }
+        } catch (e) {}
+        state.isPlayingAudio = false;
+        updateAudioUI();
+      }, 90);
+    }
+
+    function updateAudioFrequency() {
+      if (!audioCtx || !state.isPlayingAudio || !mainOsc) return;
+      const now = audioCtx.currentTime;
+
+      mainOsc.frequency.setTargetAtTime(state.frequency, now, 0.04);
+
+      if (subOsc) {
+        const subFreq = state.frequency <= 400 ? state.frequency / 2 : state.frequency / 4;
+        subOsc.frequency.setTargetAtTime(subFreq, now, 0.04);
+      }
+      if (binauralOsc) {
+        binauralOsc.frequency.setTargetAtTime(state.frequency + 5, now, 0.04);
+      }
+    }
+
+    function updateAudioUI() {
+      if (state.isPlayingAudio) {
+        audioIcon.className = 'ph ph-pause text-2xl';
+        audioStateTag.textContent = 'Active Resonance';
+        audioStateTag.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold';
+      } else {
+        audioIcon.className = 'ph ph-play text-2xl';
+        audioStateTag.textContent = 'Stopped';
+        audioStateTag.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10';
+      }
+    }
+
+    // --- Chladni Physics & Sand Movement Engine ---
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      initParticles();
+    }
+
+    class SandParticle {
+      constructor(w, h) {
+        this.reset(w, h);
+      }
+
+      reset(w, h) {
+        // Random placement across plate normalized coordinates [-1, 1]
+        this.x = (Math.random() - 0.5) * 2;
+        this.y = (Math.random() - 0.5) * 2;
+        this.vx = 0;
+        this.vy = 0;
+        this.size = Math.random() * 1.6 + 0.8;
+        const palette = COLOR_PALETTES[state.paletteKey].particles;
+        this.color = palette[Math.floor(Math.random() * palette.length)];
+      }
+
+      // Physics update implementing Chladni plate wave equation
+      update(speedFactor) {
+        const f = state.frequency;
+        
+        // Mode parameters scale dynamically with frequency (e.g. 396 Hz => mode = 6, n = 6, m = 8)
+        const mode = Math.max(1, Math.round(f / 65));
+        const n = mode;
+        const m = mode + 2;
+
+        const x = this.x;
+        const y = this.y;
+
+        // Chladni plate amplitude formula
+        // A(x,y) = cos(n * pi * x) * cos(m * pi * y) - cos(m * pi * x) * cos(n * pi * y)
+        const pi = Math.PI;
+        const amp = Math.cos(n * pi * x) * Math.cos(m * pi * y) - Math.cos(m * pi * x) * Math.cos(n * pi * y);
+        const absAmp = Math.abs(amp);
+
+        // Acoustic Force: Loud regions (high absAmp) drive particles outward
+        const acousticEnergy = state.isPlayingAudio ? (1 + state.volume * 1.2) : 0.8;
+        const force = absAmp * 0.012 * speedFactor * acousticEnergy;
+
+        // Dynamic Acoustic Brownian Jitter
+        const jitterAngle = Math.random() * Math.PI * 2;
+        const jitter = force * (0.8 + Math.random() * 0.4);
+
+        this.vx = (this.vx + Math.cos(jitterAngle) * jitter) * 0.82;
+        this.vy = (this.vy + Math.sin(jitterAngle) * jitter) * 0.82;
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Plate boundaries [-1, 1]
+        if (this.x < -1 || this.x > 1 || this.y < -1 || this.y > 1) {
+          this.x = (Math.random() - 0.5) * 1.8;
+          this.y = (Math.random() - 0.5) * 1.8;
+        }
+      }
+
+      draw(ctx, w, h) {
+        const screenX = (this.x + 1) * 0.5 * w;
+        const screenY = (this.y + 1) * 0.5 * h;
+
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      state.particles = [];
+      const count = parseInt(state.density);
+      for (let i = 0; i < count; i++) {
+        state.particles.push(new SandParticle(canvas.width, canvas.height));
+      }
+    }
+
+    function triggerParticleImpulse() {
+      for (let i = 0; i < state.particles.length; i++) {
+        const p = state.particles[i];
+        p.vx += (Math.random() - 0.5) * 0.06;
+        p.vy += (Math.random() - 0.5) * 0.06;
+      }
+    }
+
+    // --- Render Loop ---
+    function renderLoop() {
+      state.time += 0.02 * state.speed;
+
+      // Dark translucent background fill for smooth particle motion trails
+      ctx.fillStyle = 'rgba(8, 10, 24, 0.22)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (state.mode === 'chladni') {
+        // Render Active Chladni Particles
+        for (let i = 0; i < state.particles.length; i++) {
+          const p = state.particles[i];
+          p.update(state.speed);
+          p.draw(ctx, canvas.width, canvas.height);
+        }
+      } else {
+        // Render Dynamic Liquid Ripples
+        renderLiquidRipples();
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function renderLiquidRipples() {
+      const palette = COLOR_PALETTES[state.paletteKey];
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const maxRadius = Math.min(canvas.width, canvas.height) * 0.44;
+
+      const mode = Math.max(2, Math.round(state.frequency / 70));
+      const rings = 26;
+
+      ctx.lineWidth = 1.8;
+
+      for (let r = 1; r <= rings; r++) {
+        const radius = (r / rings) * maxRadius;
+        const waveOffset = Math.sin(state.time * 2.5 + r * 0.3) * 10;
+
+        ctx.beginPath();
+        const points = 100;
+        for (let i = 0; i <= points; i++) {
+          const angle = (i / points) * Math.PI * 2;
+          const distortion = Math.sin(angle * mode + state.time) * Math.cos(angle * (mode + 2) - state.time) * (14 + state.frequency / 60);
+          const currentR = radius + distortion + waveOffset;
+
+          const x = cx + Math.cos(angle) * currentR;
+          const y = cy + Math.sin(angle) * currentR;
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+
+        const alpha = Math.max(0.08, 1 - r / rings);
+        ctx.strokeStyle = r % 2 === 0 ? palette.primary : palette.secondary;
+        ctx.globalAlpha = alpha;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    // --- UI Controls & Event Listeners ---
+    function updatePalette(key) {
+      state.paletteKey = key;
+      const palette = COLOR_PALETTES[key];
+      bgGlowPrimary.style.background = palette.glowPrimary;
+      freqIndicatorDot.style.backgroundColor = palette.primary;
+
+      initParticles();
+
+      document.querySelectorAll('.palette-btn').forEach(btn => {
+        if (btn.dataset.key === key) {
+          btn.classList.add('ring-2', 'ring-white', 'scale-110');
+        } else {
+          btn.classList.remove('ring-2', 'ring-white', 'scale-110');
+        }
+      });
+    }
+
+    function selectSolfeggioTone(freq, mood, tag, paletteKey) {
+      state.frequency = freq;
+      state.currentMood = mood;
+      state.currentTag = tag;
+
+      frequencySlider.value = freq;
+      sliderFreqVal.textContent = `${freq} Hz`;
+
+      currentFreqDisplay.textContent = `${freq} Hz`;
+      currentMoodDisplay.textContent = mood;
+      currentSolfeggioTag.textContent = tag;
+
+      if (paletteKey) updatePalette(paletteKey);
+
+      triggerParticleImpulse();
+      updateAudioFrequency();
+      updatePresetCardsUI();
+    }
+
+    function renderPresetCards() {
+      const container = document.getElementById('presetGrid');
+      container.innerHTML = '';
+
+      SOLFEGGIO_PRESETS.forEach(preset => {
+        const card = document.createElement('button');
+        card.className = `preset-card glass-card p-3 rounded-2xl text-left flex items-center justify-between transition border ${
+          state.frequency === preset.freq ? 'border-rose-400/80 bg-rose-500/10 shadow-lg shadow-rose-950/30' : 'border-white/5'
+        }`;
+        card.dataset.freq = preset.freq;
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-display font-bold text-base text-white font-mono">${preset.name}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-slate-300 font-semibold uppercase">${preset.tag}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-1">${preset.mood}</p>
+          </div>
+          <i class="ph ph-caret-right text-slate-500"></i>
+        `;
+
+        card.addEventListener('click', () => {
+          selectSolfeggioTone(preset.freq, preset.mood, preset.tag, preset.palette);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function updatePresetCardsUI() {
+      document.querySelectorAll('.preset-card').forEach(card => {
+        const freq = parseInt(card.dataset.freq);
+        if (freq === state.frequency) {
+          card.classList.add('border-cyan-400', 'bg-cyan-500/10');
+          card.classList.remove('border-white/5');
+        } else {
+          card.classList.remove('border-cyan-400', 'bg-cyan-500/10');
+          card.classList.add('border-white/5');
+        }
+      });
+    }
+
+    function renderColorPaletteButtons() {
+      const container = document.getElementById('colorPaletteContainer');
+      container.innerHTML = '';
+
+      Object.keys(COLOR_PALETTES).forEach(key => {
+        const pal = COLOR_PALETTES[key];
+        const btn = document.createElement('button');
+        btn.className = `palette-btn w-full h-8 rounded-xl transition flex items-center justify-center ${
+          state.paletteKey === key ? 'ring-2 ring-white scale-110' : ''
+        }`;
+        btn.style.backgroundColor = pal.primary;
+        btn.dataset.key = key;
+
+        btn.addEventListener('click', () => updatePalette(key));
+        container.appendChild(btn);
+      });
+    }
+
+    // Slider Listeners
+    frequencySlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      state.frequency = val;
+      sliderFreqVal.textContent = `${val} Hz`;
+      currentFreqDisplay.textContent = `${val} Hz`;
+      triggerParticleImpulse();
+      updateAudioFrequency();
+      updatePresetCardsUI();
+    });
+
+    densitySlider.addEventListener('input', (e) => {
+      state.density = parseInt(e.target.value);
+      sliderDensityVal.textContent = state.density;
+      initParticles();
+    });
+
+    speedSlider.addEventListener('input', (e) => {
+      state.speed = parseFloat(e.target.value);
+      sliderSpeedVal.textContent = state.speed;
+    });
+
+    volumeSlider.addEventListener('input', (e) => {
+      state.volume = parseFloat(e.target.value);
+      volumeVal.textContent = `${Math.round(state.volume * 100)}%`;
+      if (masterGainNode && audioCtx) {
+        masterGainNode.gain.setTargetAtTime(state.volume, audioCtx.currentTime, 0.05);
+      }
+    });
+
+    // Sub-Harmonics & Binaural Toggles
+    toggleSubHarmonicsBtn.addEventListener('click', () => {
+      state.subHarmonics = !state.subHarmonics;
+      toggleSubHarmonicsBtn.classList.toggle('border-cyan-400');
+      toggleSubHarmonicsBtn.classList.toggle('bg-cyan-500/20');
+      if (state.isPlayingAudio) startAudioSynth();
+    });
+
+    toggleBinauralBtn.addEventListener('click', () => {
+      state.binaural = !state.binaural;
+      toggleBinauralBtn.classList.toggle('border-violet-400');
+      toggleBinauralBtn.classList.toggle('bg-violet-500/20');
+      if (state.isPlayingAudio) startAudioSynth();
+    });
+
+    // Mode Switchers
+    modeChladniBtn.addEventListener('click', () => {
+      state.mode = 'chladni';
+      modeChladniBtn.className = 'px-4 py-2 rounded-xl font-semibold transition bg-indigo-500/30 text-cyan-300 border border-cyan-400/30 shadow-md';
+      modeFluidBtn.className = 'px-4 py-2 rounded-xl font-medium text-slate-400 hover:text-white transition';
+    });
+
+    modeFluidBtn.addEventListener('click', () => {
+      state.mode = 'fluid';
+      modeFluidBtn.className = 'px-4 py-2 rounded-xl font-semibold transition bg-indigo-500/30 text-cyan-300 border border-cyan-400/30 shadow-md';
+      modeChladniBtn.className = 'px-4 py-2 rounded-xl font-medium text-slate-400 hover:text-white transition';
+    });
+
+    btnAudioToggle.addEventListener('click', () => {
+      if (state.isPlayingAudio) {
+        stopAudioSynth();
+      } else {
+        startAudioSynth();
+      }
+    });
+
+    // Fullscreen Toggle
+    document.getElementById('btnFullscreen').addEventListener('click', () => {
+      const container = document.getElementById('canvasContainer');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+          console.error(`Error attempting fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Science Modal
+    const scienceModal = document.getElementById('scienceModal');
+    document.getElementById('btnToggleScience').addEventListener('click', () => {
+      scienceModal.classList.remove('opacity-0', 'pointer-events-none');
+    });
+
+    const closeScienceModal = () => {
+      scienceModal.classList.add('opacity-0', 'pointer-events-none');
+    };
+    document.getElementById('btnCloseScience').addEventListener('click', closeScienceModal);
+    document.getElementById('btnCloseScience2').addEventListener('click', closeScienceModal);
+
+    // Guided 1-Min Reset Modal
+    const guidedModal = document.getElementById('guidedModal');
+    const step1 = document.getElementById('guidedStep1');
+    const step2 = document.getElementById('guidedStep2');
+    const step3 = document.getElementById('guidedStep3');
+    const step4 = document.getElementById('guidedStep4');
+
+    let resetTimer = null;
+    let secondsLeft = 60;
+
+    document.getElementById('btnGuidedReset').addEventListener('click', () => {
+      guidedModal.classList.remove('opacity-0', 'pointer-events-none');
+      step1.classList.remove('hidden');
+      step1.classList.add('flex');
+      step2.classList.add('hidden');
+      step3.classList.add('hidden');
+      step4.classList.add('hidden');
+    });
+
+    document.getElementById('btnCloseGuided').addEventListener('click', () => {
+      guidedModal.classList.add('opacity-0', 'pointer-events-none');
+      if (resetTimer) clearInterval(resetTimer);
+    });
+
+    document.querySelectorAll('.mood-pre-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.preMood = btn.dataset.mood;
+        startGuidedTimer();
+      });
+    });
+
+    function startGuidedTimer() {
+      step1.classList.add('hidden');
+      step2.classList.remove('hidden');
+      step2.classList.add('flex');
+
+      if (!state.isPlayingAudio) startAudioSynth();
+
+      secondsLeft = 60;
+      const timerDisplay = document.getElementById('resetTimerNum');
+      const progressCircle = document.getElementById('timerProgressCircle');
+      const breathText = document.getElementById('guidedBreathText');
+      const totalDash = 402;
+
+      resetTimer = setInterval(() => {
+        secondsLeft--;
+        timerDisplay.textContent = secondsLeft;
+
+        const offset = totalDash - (secondsLeft / 60) * totalDash;
+        progressCircle.style.strokeDashoffset = offset;
+
+        if (secondsLeft % 8 >= 4) {
+          breathText.textContent = 'Exhale softly... release mental tension.';
+        } else {
+          breathText.textContent = 'Inhale deeply... align with resonance.';
+        }
+
+        if (secondsLeft <= 0) {
+          clearInterval(resetTimer);
+          showPostAssessment();
+        }
+      }, 1000);
+    }
+
+    function showPostAssessment() {
+      step2.classList.add('hidden');
+      step3.classList.remove('hidden');
+      step3.classList.add('flex');
+    }
+
+    document.querySelectorAll('.mood-post-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.postMood = btn.dataset.mood;
+        showSummary();
+      });
+    });
+
+    function showSummary() {
+      step3.classList.add('hidden');
+      step4.classList.remove('hidden');
+      step4.classList.add('flex');
+
+      document.getElementById('summaryPre').textContent = state.preMood;
+      document.getElementById('summaryPost').textContent = state.postMood;
+      document.getElementById('summaryFreq').textContent = `${state.frequency} Hz (${state.currentTag})`;
+    }
+
+    document.getElementById('btnFinishReset').addEventListener('click', () => {
+      guidedModal.classList.add('opacity-0', 'pointer-events-none');
+    });
+
+    // --- Window Event Handlers ---
+    window.addEventListener('resize', resizeCanvas);
+
+    window.onload = () => {
+      resizeCanvas();
+      renderPresetCards();
+      renderColorPaletteButtons();
+      selectSolfeggioTone(396, 'Grounding, Releasing Guilt & Fear', 'UT • Root', 'rose');
+      renderLoop();
+    };
+  </script>
+</body>
+</html>
